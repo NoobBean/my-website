@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D2Media.in | Viral Content Engineering</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --accent: #ff3e3e; /* Branding Red */
+            --gray: #1a1a1a;
+            --wa-green: #25D366;
+            --menu-bg: #111111; /* UPDATED: Change this hex for a different menu color */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        #cursor {
+            width: 15px; height: 15px; background: var(--accent); border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 10000; transition: transform 0.1s ease;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 5%; position: fixed; width: 100%; top: 0; z-index: 2000;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 15px; }
+        .logo-img { height: 50px; width: auto; border-radius: 50%; }
+        .logo-text { font-weight: 900; font-size: 1.2rem; letter-spacing: 2px; color: white; }
+
+        .menu-btn {
+            font-weight: 900; font-size: 0.8rem; letter-spacing: 2px;
+            background: none; border: none; color: white; cursor: pointer;
+        }
+
+        /* Full Screen Menu Overlay */
+        .menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--menu-bg); /* Controlled by the variable above */
+            z-index: 2500;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transform: translateY(-100%); transition: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        .menu-overlay.active { transform: translateY(0); }
+
+        .menu-links a {
+            font-size: clamp(2rem, 6vw, 5rem); font-weight: 900; 
+            color: white; /* Changed to white for better contrast on dark menu */
+            text-decoration: none; text-transform: uppercase; line-height: 1.1;
+            display: block; transition: 0.3s; margin: 15px 0;
+        }
+
+        .menu-links a:hover { color: var(--accent); transform: skewX(-10deg); }
+
+        .close-menu {
+            position: absolute; top: 30px; right: 5%; font-size: 1.2rem;
+            font-weight: 900; color: white; background: none; border: 1px solid white;
+            padding: 10px 20px; border-radius: 50px; cursor: pointer;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero { 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            padding: 0 5%; 
+            gap: 5%;
+        }
+
+        .hero-video-side {
+            flex: 0 0 30%;
+            height: 50vh;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(255, 62, 62, 0.2);
+        }
+
+        .hero-video-side video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-text-side { flex: 0 0 65%; }
+        .hero h1 { font-size: clamp(2.5rem, 9vw, 8rem); font-weight: 900; line-height: 0.85; }
+
+        .keyword-strip { padding: 25px 0; background: var(--accent); color: black; font-weight: 900; overflow: hidden; white-space: nowrap; margin: 5vh 0; }
+        .marquee-anim { display: inline-block; animation: scroll 15s linear infinite; font-size: 1.5rem; }
+        @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        /* --- SECTIONS --- */
+        .section { padding: 120px 5%; min-height: 100vh; }
+        .label { color: var(--accent); font-weight: 900; letter-spacing: 5px; margin-bottom: 20px; }
+        h2 { font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 900; line-height: 1; margin-bottom: 40px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
+        .card { background: var(--gray); padding: 60px 40px; border-radius: 12px; border: 1px solid #333; position: relative; transition: 0.4s; }
+        .card:hover { border-color: var(--accent); transform: translateY(-10px); }
+        .icon { width: 50px; height: 50px; fill: var(--accent); margin-bottom: 20px; }
+
+        .reveal-text { font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; opacity: 0.1; line-height: 1.2; }
+
+        /* --- BRANDS RIBBON SECTION --- */
+        .brands-marquee {
+            width: 100%;
+            overflow: hidden;
+            padding: 30px 0;
+            background: #ffffff;
+            margin: 40px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .brands-track {
+            display: flex;
+            width: calc(150px * 20); 
+            animation: brandRibbon 15s linear infinite;
+        }
+
+        .brand-logo {
+            width: 150px; 
+            height: 100px; 
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        .brand-logo img {
+            max-width: 100px; /* 2x2 inch feel */
+            max-height: 80px;
+            opacity: 1;
+            transition: 0.3s ease;
+            object-fit: contain;
+        }
+
+        .brand-logo img:hover {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        @keyframes brandRibbon {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(-150px * 10)); }
+        }
+
+        /* --- FOOTER --- */
+        .footer-visual { background: white; color: black; padding: 120px 5% 40px 5%; }
+        .footer-main { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 60px; margin-bottom: 80px; }
+        .footer-brand h3 { font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; line-height: 0.9; }
+        .footer-brand span { color: var(--accent); }
+
+        .contact-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; width: 100%; margin-top: 60px; border-top: 2px solid #eee; padding-top: 40px; }
+        .detail-item h5 { font-size: 0.7rem; letter-spacing: 2px; color: #888; margin-bottom: 10px; }
+        .detail-item p, .detail-item a { font-size: 1.2rem; font-weight: 800; color: black; text-decoration: none; }
+
+        .wa-btn { background: var(--wa-green); color: white !important; padding: 12px 25px; border-radius: 50px; display: inline-block; margin-top: 10px; }
+
+        @media (max-width: 992px) {
+            .hero { flex-direction: column; justify-content: center; text-align: center; height: auto; padding-top: 150px; gap: 40px; }
+            .hero-video-side { flex: 0 0 100%; width: 80%; height: 40vh; }
+            .hero-text-side { flex: 0 0 100%; }
+            * { cursor: auto !important; } #cursor { display: none; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+
+    <nav>
+        <div class="logo-container">
+            <img src="logo.jpeg" alt="D2Media Logo" class="logo-img">
+            <div class="logo-text">D2MEDIA.IN</div>
+        </div>
+        <button class="menu-btn" onclick="toggleMenu()">MENU</button>
+    </nav>
+
+    <!-- Full Screen Menu with new color settings -->
+    <div class="menu-overlay" id="menuOverlay">
+        <button class="close-menu" onclick="toggleMenu()">CLOSE</button>
+        <div class="menu-links">
+            <a href="#services" onclick="toggleMenu()">Our Services</a>
+            <a href="#why-us" onclick="toggleMenu()">Why Us</a>
+            <a href="#brands" onclick="toggleMenu()">Brands We Worked For</a>
+            <a href="#contact" onclick="toggleMenu()">Contact Details</a>
+        </div>
+    </div>
+
+    <main>
+        <section class="hero">
+            <div class="hero-video-side">
+                <video autoplay muted loop playsinline>
+                    <source src="viral-video.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="hero-text-side">
+                <h1>VIRAL<br><span style="color:var(--accent)">ENGINEERING</span><br>AGENCY.</h1>
+            </div>
+        </section>
+
+        <div class="keyword-strip">
+            <div class="marquee-anim">
+                <span>VIRAL • MARKETING • CONTENT • MEME • TREND • UNIQUE • CREATIVE • CAMPAIGN • ENGAGEMENT • REEL • FUNNY • EDIT • CREATOR • </span>
+                <span>VIRAL • MARKETING • CONTENT • MEME • TREND • UNIQUE • CREATIVE • CAMPAIGN • ENGAGEMENT • REEL • FUNNY • EDIT • CREATOR • </span>
+            </div>
+        </div>
+
+        <section class="section" id="services">
+            <p class="label">01 // SERVICES</p>
+            <div class="grid">
+                <div class="card reveal">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M7 19v-8H5v8h2zm5 0v-2h-2v2h2zm5 0v-4h-2v4h2zm4 3H3V3h18v19z"/></svg>
+                    <h3>Meme Videos</h3>
+                    <p>We don’t just make memes. We engineer internet moments. We craft content that reaches the right audience at the right time.</p>
+                </div>
+                <div class="card reveal">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                    <h3>Video Edits</h3>
+                    <p>High quality, mobile-first edits created specially for Instagram pages. Platform-friendly styles that feel natural to the feed.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="why-us">
+            <p class="label">02 // WHY US</p>
+            <div class="about-wrap">
+                <p class="reveal-text">D2Media.in understands internet culture.</p>
+                <p class="reveal-text">We work with India’s leading meme agencies.</p>
+                <p class="reveal-text">We create content that feels organic, not forced.</p>
+            </div>
+        </section>
+
+        <!-- BRANDS RIBBON SECTION -->
+        <section class="section" id="brands" style="min-height: auto; padding-bottom: 50px;">
+            <p class="label">03 // OUR CLIENTS</p>
+            <h2>BRANDS WE <br><span style="color:var(--accent)">WORKED FOR</span></h2>
+            
+            <div class="brands-marquee reveal">
+                <div class="brands-track">
+                    <!-- Set 1 -->
+		    <div class="brand-logo"><img src="netflix_in-20260501-0001.jpg.jpeg" alt="Netflix"></div>
+		    <div class="brand-logo"><img src="ajiolife-20260501-0001.jpg.jpeg" alt="Ajio"></div>
+		    <div class="brand-logo"><img src="sonylivindia-20260501-0001.jpg.jpeg" alt="Sony Liv"></div>
+		    <div class="brand-logo"><img src="rapidoapp-20260501-0001.jpg.jpeg" alt="Rapido"></div>
+		    <div class="brand-logo"><img src="jiohotstar-20260501-0001.jpg.jpeg" alt="JioHotstar"></div>
+                    <div class="brand-logo"><img src="doveindiachannel-20260501-0001.jpg.jpeg" alt="Dove"></div>
+		    <div class="brand-logo"><img src="realmeindia-20260501-0001.jpg.jpeg" alt="Realme"></div>
+		    <div class="brand-logo"><img src="asianpaints-20260501-0001.jpg.jpeg" alt="Asian Paints"></div>
+                    <div class="brand-logo"><img src="starplus-20260501-0001.jpg.jpeg" alt="Star Plus"></div>
+                    <div class="brand-logo"><img src="lakmeindia-20260501-0001.jpg.jpeg" alt="Lakme"></div>
+                    
+                    
+                    
+                    <!-- Duplicate Set for infinite loop -->
+                    <div class="brand-logo"><img src="netflix_in-20260501-0001.jpg.jpeg" alt="Netflix"></div>
+		    <div class="brand-logo"><img src="ajiolife-20260501-0001.jpg.jpeg" alt="Ajio"></div>
+		    <div class="brand-logo"><img src="sonylivindia-20260501-0001.jpg.jpeg" alt="Sony Liv"></div>
+		    <div class="brand-logo"><img src="rapidoapp-20260501-0001.jpg.jpeg" alt="Rapido"></div>
+		    <div class="brand-logo"><img src="jiohotstar-20260501-0001.jpg.jpeg" alt="JioHotstar"></div>
+                    <div class="brand-logo"><img src="doveindiachannel-20260501-0001.jpg.jpeg" alt="Dove"></div>
+		    <div class="brand-logo"><img src="realmeindia-20260501-0001.jpg.jpeg" alt="Realme"></div>
+		    <div class="brand-logo"><img src="asianpaints-20260501-0001.jpg.jpeg" alt="Asian Paints"></div>
+                    <div class="brand-logo"><img src="starplus-20260501-0001.jpg.jpeg" alt="Star Plus"></div>
+                    <div class="brand-logo"><img src="lakmeindia-20260501-0001.jpg.jpeg" alt="Lakme"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-visual" id="contact">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <h3>Your Brand's<br><span>Creative</span> Partner</h3>
+                </div>
+            </div>
+
+            <div class="contact-details">
+                <div class="detail-item">
+                    <h5>LOCATION</h5>
+                    <p>Opearating digitally to <br>serve you better</p>
+                </div>
+                <div class="detail-item">
+                    <h5>EMAIL</h5>
+                    <a href="mailto:worksd2media@gmail.com">worksd2media@gmail.com</a>
+                </div>
+                <div class="detail-item">
+                    <h5>SAY HI</h5>
+                    <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                        <a href="https://www.instagram.com/d2media.in/"><img src="instalogo.png" alt="Instagram" width="30"></a>
+                        <a href="https://wa.me/917005124287"/"><img src="whatsapplogo1.png" alt="WhatsApp" width="30"></a>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <p style="margin-top: 60px; font-size: 0.7rem; opacity: 0.5; font-weight: 900; text-align: center;">
+                © 2026 D2MEDIA.IN — ALL RIGHTS RESERVED
+            </p>
+        </footer>
+    </main>
+
+    <script>
+        const cursor = document.querySelector('#cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        function toggleMenu() {
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.utils.toArray(".reveal").forEach(el => {
+            gsap.from(el, {
+                scrollTrigger: { trigger: el, start: "top 90%" },
+                y: 50, opacity: 0, duration: 1, ease: "power2.out"
+            });
+        });
+
+        gsap.utils.toArray(".reveal-text").forEach(text => {
+            gsap.to(text, {
+                scrollTrigger: { trigger: text, start: "top 80%", end: "top 40%", scrub: true },
+                opacity: 1, color: "#ff3e3e"
+            });
+        });
+    </script>
+</body>
+</html>
